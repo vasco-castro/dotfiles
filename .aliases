@@ -1,0 +1,135 @@
+
+# Clear aliases (does not clear the scrollback)
+alias clear='clear -x'
+alias celar='clear'
+alias cls='clear'
+alias csl='clear'
+
+# LS aliases
+alias ll='ls -l'
+alias lr='ls -R'
+alias lR='ls -R'
+
+# Git aliases (Overide some of the Oh-My-*sh git aliases)
+alias gs='git status --untracked-files=all -sb'
+alias sg='gs'
+alias ga='git add'
+alias ag='ga'
+alias gc='git commit -m'
+alias cg='gc'
+alias gp='git push'
+alias gpl='git pull'
+alias gl='git log --graph --oneline --all'
+alias gf='git fetch'
+alias gr='git remote'
+alias gb='git branch'
+alias gsw='git switch'
+alias gls='git ls-files'
+
+# Norminette and C Compiler aliases
+# alias n='norminette' # --use-gitignore' # -R CheckForbiddenSourceHeader -R CheckDefine'
+alias n='norm'
+alias c='cc -Wall -Wextra -Werror'
+alias cs='cc -Wall -Wextra -Werror -fsanitize=address -g'
+
+# Aliases and Functions to reload ShellRunCommand files (with editing option, auto detects which shell env it's using)
+alias r='source-rc'
+alias rc='edit-rc'
+
+source-rc() {
+	if [ -n "$ZSH_VERSION" ]; then
+	    RC_FILE="${HOME}/.zshrc"
+	elif [ -n "$BASH_VERSION" ]; then
+		RC_FILE="${HOME}/.bashrc"
+	else
+		RC_FILE="${HOME}/.profile"
+	fi
+	
+	source "$RC_FILE" && echo "✅ Reloaded $RC_FILE"
+}
+
+edit-rc() {
+	# Finds rc file, depending on what shell it's using
+	if [ -n "$ZSH_VERSION" ]; then
+		RC_FILE="${HOME}/.zshrc"
+	elif [ -n "$BASH_VERSION" ]; then
+		RC_FILE="${HOME}/.bashrc"
+	else
+		RC_FILE="${HOME}/.profile"
+	fi
+	
+	# Use preferred editor (falls back to nano) (defined at .*shrc file)
+	EDITOR="${EDITOR:-code}"
+	
+	# Edit the file (this blocks until editor closes)
+	# (using --wait instead to actually wait to close the specific file)
+	"$EDITOR" --wait "$RC_FILE"
+	
+	# Check if file was actually modified & reload it
+	if [ $? -eq 0 ]; then
+		source "$RC_FILE"
+		echo "✅ Reloaded $RC_FILE"
+	else
+		echo "‼️ Editor exited with error, not reloading"
+		exit 1
+	fi
+}
+
+# Color variables
+RED="\033[1;31m"
+GRN="\033[1;32m"
+YEL="\033[1;33m"
+BLU="\033[1;34m"
+MAG="\033[1;35m"
+CYN="\033[1;36m"
+WHT="\033[1;37m"
+RST="\033[0m"
+
+norm() {
+	norminette $@ | egrep -B1 'Error|Warning' > check_norm || true
+	if [ -s check_norm ]; then
+		printf "${RED}NORMINETTE: KO${RST}\n"
+		egrep 'Error|Warning' check_norm | awk '{
+			gsub(/\033\[[0-9;]*m/, "")
+			if ($0 ~ /Error!|Warning!/)
+				print "\033[1;33m" $0 "\033[0m"
+			else
+				print "\033[1;31m" $0 "\033[0m"
+		}'
+		rm check_norm
+		return 1
+	else
+		printf "${GRN}NORMINETTE: OK${RST}\n"
+		rm check_norm
+		return 0
+	fi
+}
+
+better-git-status() {
+	awk -vOFS='' '
+	    NR==FNR {
+	        all[i++] = $0;
+	        difffiles[$1] = $0;
+	        next;
+	    }
+	    ! ($2 in difffiles) {
+	        print; next;
+	    }
+	    {
+	        gsub($2, difffiles[$2]);
+	        print;
+	    }
+	    END {
+	        if (NR != FNR) {
+	            # Had diff output
+	            exit;
+	        }
+	        # Had no diff output, just print lines from git status -sb
+	        for (i in all) {
+	            print all[i];
+	        }
+	    }
+	' \
+	    <(git diff --color --stat=$(($(tput cols) - 3)) HEAD | sed '$d; s/^ //')\
+	    <(git -c color.status=always status -sb)
+}
