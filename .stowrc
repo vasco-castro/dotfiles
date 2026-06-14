@@ -1,0 +1,4 @@
+# ~/.dotfiles/.stowrc
+--target=$HOME
+--dotfiles
+--verbose=1

@@ -71,7 +71,7 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting fast-syntax-highlighting zsh-autocomplete)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -107,8 +107,8 @@ source $ZSH/oh-my-zsh.sh
 # Enabling VS Code's shell features for ZSH
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
 
-# Enabling VS Code's shell features for ZSH
-[[ "$TERM_PROGRAM" == "zed" ]] && . "$(zed --locate-shell-integration-path bash)"
+# Enabling ZED's shell features for ZSH
+[[ "$TERM_PROGRAM" == "zed" ]] && . "$(zed --locate-shell-integration-path zsh)"
 
 # Adds $HOME/.local/bin:$PATH to PATH if needed
 [[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH="$HOME/.local/bin:$PATH"
@@ -118,5 +118,8 @@ source $ZSH/oh-my-zsh.sh
 
 # Define preferred editor to be Zed
 export EDITOR='zed'
+
+# Add this to .zshrc to move the cache to a .cache folder
+export ZSH_COMPDUMP="$HOME/.cache/zsh/zcompdump-$HOST"
 
 source ~/.aliases

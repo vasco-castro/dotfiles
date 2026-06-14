@@ -1,0 +1,11 @@
+# git config
+
+[user]
+	name = Vasco Castro
+	email = vascocastro2001@gmail.com
+
+[core]
+	excludesfile = ~/.gitignore_global
+
+[color]
+    ui = auto

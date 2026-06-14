@@ -157,19 +157,10 @@ source "$OSH"/oh-my-bash.sh
 # alias bashconfig="mate ~/.bashrc"
 # alias ohmybash="mate ~/.oh-my-bash"
 
-# Enabling VS Code's shell features for ZSH
-[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+# Enabling VS Code's shell features for BASH
+[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path bash)"
 
-# Enabling VS Code's shell features for ZSH
+# Enabling ZED's shell features for BASH
 [[ "$TERM_PROGRAM" == "zed" ]] && . "$(zed --locate-shell-integration-path bash)"
-
-# Adds $HOME/.local/bin:$PATH to PATH if needed
-[[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH="$HOME/.local/bin:$PATH"
-
-# Adds $HOME/bin:$PATH to PATH if needed
-[[ ":$PATH:" != *":$HOME/bin:"* ]] && export PATH="$HOME/bin:$PATH"
-
-# Define preferred editor to be Zed
-export EDITOR='zed'
 
 source ~/.aliases
