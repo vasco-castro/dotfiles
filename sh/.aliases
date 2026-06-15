@@ -1,6 +1,24 @@
+# Vasco Castro's ShellRunCommand Aliases and Functions
+
+# Color variables
+RED="\033[1;31m"
+GRN="\033[1;32m"
+YEL="\033[1;33m"
+BLU="\033[1;34m"
+MAG="\033[1;35m"
+CYN="\033[1;36m"
+WHT="\033[1;37m"
+RST="\033[0m"
+
+# Use bat for cat if available (with no paging)
+if command -v bat &>/dev/null; then
+    alias cat='bat --paging=never'
+fi
+
+alias unstow="stow -D"
 
 # Clear aliases (does not clear the scrollback)
-alias clear='clear -x'
+alias clear='clear'
 alias celar='clear'
 alias cls='clear'
 alias csl='clear'
@@ -14,8 +32,9 @@ alias lr='ls -R'
 alias lR='ls -R'
 
 # Git aliases (Overide some of the Oh-My-*sh git aliases)
-alias gs='git status --untracked-files=all -sb'
-# alias gs='better-git-status'
+alias gs='git status --untracked-files=all'
+alias gss="gs -sb"
+alias gsb="better-git-status"
 alias sg='gs'
 alias ga='git add'
 alias ag='ga'
@@ -29,26 +48,13 @@ alias gr='git remote'
 alias gb='git branch'
 alias gsw='git switch'
 alias gls='git ls-files'
+alias gcl="git clone"
 
 # Norminette and C Compiler aliases
 # alias n='norminette' # --use-gitignore' # -R CheckForbiddenSourceHeader -R CheckDefine'
 alias n='norm'
 alias c='cc -Wall -Wextra -Werror'
 alias cs='cc -Wall -Wextra -Werror -fsanitize=address -g'
-
-# Aliases and Functions to reload ShellRunCommand files (with editing option, auto detects which shell env it's using)
-alias r='source-rc'
-alias rc='edit-rc'
-
-# Color variables
-RED="\033[1;31m"
-GRN="\033[1;32m"
-YEL="\033[1;33m"
-BLU="\033[1;34m"
-MAG="\033[1;35m"
-CYN="\033[1;36m"
-WHT="\033[1;37m"
-RST="\033[0m"
 
 norm() {
 	norminette $@ | egrep -B1 'Error|Warning' > check_norm || true
@@ -70,39 +76,36 @@ norm() {
 	fi
 }
 
+# Aliases and Functions to reload ShellRunCommand files (with editing option, auto detects which shell env it's using)
+alias r='source-rc'
+alias rc='edit-rc'
+
+# Finds rc file, depending on what shell it's using
+if [ -n "$ZSH_VERSION" ]; then
+    RC_FILE="${HOME}/.zshrc"
+elif [ -n "$BASH_VERSION" ]; then
+	RC_FILE="${HOME}/.bashrc"
+else
+	RC_FILE="${HOME}/.profile"
+fi
+
+ALIAS_FILE="${HOME}/.aliases"
+
 source-rc() {
-	if [ -n "$ZSH_VERSION" ]; then
-	    RC_FILE="${HOME}/.zshrc"
-	elif [ -n "$BASH_VERSION" ]; then
-		RC_FILE="${HOME}/.bashrc"
-	else
-		RC_FILE="${HOME}/.profile"
-	fi
-	
 	source "$RC_FILE" && echo "✅ Reloaded $RC_FILE"
 }
 
 edit-rc() {
-	# Finds rc file, depending on what shell it's using
-	if [ -n "$ZSH_VERSION" ]; then
-		RC_FILE="${HOME}/.zshrc"
-	elif [ -n "$BASH_VERSION" ]; then
-		RC_FILE="${HOME}/.bashrc"
-	else
-		RC_FILE="${HOME}/.profile"
-	fi
-	
-	# Use preferred editor (falls back to nano) (defined at .*shrc file)
-	EDITOR="${EDITOR:-code}"
-	
+	# Use preferred editor (defined at ~/.profile) (falls back to nano)
+	EDITOR="${EDITOR:-nano}"
+
 	# Edit the file (this blocks until editor closes)
 	# (using --wait instead to actually wait to close the specific file)
-	"$EDITOR" --wait "$RC_FILE"
-	
+	"$EDITOR" --wait "$RC_FILE" "$ALIAS_FILE"
+
 	# Check if file was actually modified & reload it
 	if [ $? -eq 0 ]; then
-		source "$RC_FILE"
-		echo "✅ Reloaded $RC_FILE"
+		source "$RC_FILE" && echo "✅ Reloaded $RC_FILE" || exit 1
 	else
 		echo "‼️ Editor exited with error, not reloading"
 		exit 1
