@@ -110,15 +110,6 @@ source $ZSH/oh-my-zsh.sh
 # Enabling ZED's shell features for ZSH
 [[ "$TERM_PROGRAM" == "zed" ]] && . "$(zed --locate-shell-integration-path zsh)"
 
-# Adds $HOME/.local/bin:$PATH to PATH if needed
-[[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH="$HOME/.local/bin:$PATH"
-
-# Adds $HOME/bin:$PATH to PATH if needed
-[[ ":$PATH:" != *":$HOME/bin:"* ]] && export PATH="$HOME/bin:$PATH"
-
-# Define preferred editor to be Zed
-export EDITOR='zed'
-
 # Add this to .zshrc to move the cache to a .cache folder
 export ZSH_COMPDUMP="$HOME/.cache/zsh/zcompdump-$HOST"
 

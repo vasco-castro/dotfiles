@@ -12,5 +12,5 @@ fi
 export PATH
 
 # Define preferred editor to be Zed/Code
-# export EDITOR='zed'
 export EDITOR='code'
+# export EDITOR='zed'
